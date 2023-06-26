@@ -1,17 +1,12 @@
 import xlwings
 from xlwings import *
-import pyautogui
 import threading
 import tkinter as tk
 from tkinter import *
 from tkinter import filedialog
 from threading import Thread
-from pyautogui import sleep
-import subprocess
-import pygetwindow as gw
 import mysql.connector
 from mysql.connector import Error
-import pandas as pd
 
 arquivogetnet = None
 pastadetrabalhogetnet = None
@@ -136,16 +131,10 @@ class Th(Thread):
             execute_query(connection, inserir)
 
 
-
-
-
-
-
-
 #INTERFACE
 janela = Tk()
 janela.title('FLUXO DE CAIXA')
-janela.geometry("280x250+50+50")
+janela.geometry("300x300")
 
 Label1 = Label(janela, text='Insira as pastas de trabalho:', font="Arial 10 bold", justify=CENTER)
 Label1.grid(column=0, row=0, padx=50, pady=10)
