@@ -13,6 +13,16 @@ import mysql.connector
 from mysql.connector import Error
 import pandas as pd
 
+arquivogetnet = None
+pastadetrabalhogetnet = None
+valoresgetnet = []
+datasgetnet = []
+
+arquivocbb = None
+pastadetrabalhocbb = None
+valorescbb = []
+datascbb = []
+
 def create_server_connection(host_name, user_name, user_password):
     connection = None
     try:
@@ -44,16 +54,16 @@ def execute_query(connection, query):
         print(f"Error: '{err}'")
 
 def ler1():
-    global arquivo
-    arquivo = filedialog.askopenfilename()
-    labelbt1 = Label(janela, text="{} CARREGADO".format(arquivo), font="Arial 7")
+    global arquivogetnet
+    arquivogetnet = filedialog.askopenfilename()
+    labelbt1 = Label(janela, text="{} CARREGADO".format(arquivogetnet), font="Arial 7")
     labelbt1.grid(column=0, row=3)
 
 
 def ler2():
-    global arquivo2
-    arquivo2 = filedialog.askopenfilename()
-    labelbt2 = Label(janela, text="{} CARREGADO".format(arquivo2), font="Arial 7")
+    global arquivocbb
+    arquivocbb = filedialog.askopenfilename()
+    labelbt2 = Label(janela, text="{} CARREGADO".format(arquivocbb), font="Arial 7")
     labelbt2.grid(column=0, row=4)
 
 def start():
@@ -67,10 +77,57 @@ class Th(Thread):
 
 
     def run(self):
+        global arquivogetnet
+        global pastadetrabalhogetnet
+        global valoresgetnet
 
+        pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
+        planilha = pastadetrabalhogetnet.sheets['Planilha1']
+
+        pastadetrabalhocbb = xlwings.Book(arquivocbb)
+        planilhacbb = pastadetrabalhocbb.sheets['Planilha1']
+
+        last_row = planilha.range('B1').end('down').row
+        last_row2 = planilha.range('A1').end('down').row
+
+        last_row3 = planilhacbb.range('A1').end('down').row
+        last_row4 = planilhacbb.range('E1').end('down').row
+
+        for a in range(1, last_row3 + 1):
+            valtemp = planilhacbb.range('A{}'.format(a)).value
+            datascbb.append(valtemp)
+
+        for b in range(1, last_row4 + 1):
+            valtemp = planilhacbb.range('E{}'.format(b)).value
+            valorescbb.append(valtemp)
+
+        for i in range(1, last_row + 1):
+            valtemp = planilha.range('B{}'.format(i)).value
+            valoresgetnet.append(valtemp)
+
+        for k in range(1, last_row2 + 1):
+            valtemp = planilha.range('A{}'.format(k)).value
+            datasgetnet.append(valtemp)
+
+        pastadetrabalhogetnet.close()
+        pastadetrabalhocbb.close()
         connection = create_server_connection("localhost", "root", "wolf")
-        usardb = "USE fluxodecaixa"
-        execute_query(connection, usardb)
+
+
+        for j in range(0, len(valoresgetnet)):
+            usardb = "USE fluxodecaixa"
+            inserir = "INSERT INTO getnet (dataatual, valor) VALUES ('{}', '{}')".format(datasgetnet[j], valoresgetnet[j])
+            execute_query(connection, usardb)
+            execute_query(connection, inserir)
+
+        for y in range(0, len(valorescbb)):
+            usardb = "USE fluxodecaixa"
+            inserir = "INSERT INTO bbrasil (dataatual, valor) VALUES ('{}', '{}')".format(datascbb[y], valorescbb[y])
+            execute_query(connection, usardb)
+            execute_query(connection, inserir)
+
+
+
 
 
 
