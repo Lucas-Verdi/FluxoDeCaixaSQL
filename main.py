@@ -66,6 +66,15 @@ def ler2():
     labelbt2 = Label(janela, text="{} CARREGADO".format(arquivocbb), font="Arial 7")
     labelbt2.grid(column=0, row=4)
 
+def truncate():
+    connection = create_server_connection("localhost", "root", "wolf")
+    usardb = "USE fluxodecaixa"
+    truncate = "TRUNCATE TABLE getnet"
+    truncate2 = "TRUNCATE TABLE bbrasil"
+    execute_query(connection, usardb)
+    execute_query(connection, truncate)
+    execute_query(connection, truncate2)
+
 def start():
     a = Th(1)
     a.start()
@@ -152,6 +161,10 @@ botao2.bind("<Button>", lambda e: ler2())
 botao3 = Button(janela, text="GERAR CONTROLE", font="Arial 10")
 botao3.grid(column=0, row=5, padx=10, pady=10)
 botao3.bind("<Button>", lambda e: start())
+
+truncatebtn = Button(janela, text="TRUNCATE", font="Arial 10")
+truncatebtn.grid(column=0, row=6, padx=10, pady=10)
+truncatebtn.bind("<Button>", lambda e: truncate())
 
 janela.mainloop()
 
