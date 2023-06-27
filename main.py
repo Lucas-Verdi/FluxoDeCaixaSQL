@@ -7,6 +7,7 @@ from tkinter import filedialog
 from threading import Thread
 import mysql.connector
 from mysql.connector import Error
+from datetime import datetime
 
 arquivogetnet = None
 pastadetrabalhogetnet = None
@@ -17,6 +18,8 @@ arquivocbb = None
 pastadetrabalhocbb = None
 valorescbb = []
 datascbb = []
+
+datastr = []
 
 def create_server_connection(host_name, user_name, user_password):
     connection = None
@@ -84,6 +87,7 @@ class Th(Thread):
         global arquivogetnet
         global pastadetrabalhogetnet
         global valoresgetnet
+        global datastr
 
         pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
         planilha = pastadetrabalhogetnet.sheets['Planilha1']
@@ -113,14 +117,18 @@ class Th(Thread):
             valtemp = planilha.range('A{}'.format(k)).value
             datasgetnet.append(valtemp)
 
+        for c in range(0, len(datasgetnet)):
+            date = datetime.strptime(datasgetnet[c], '%d/%m/%Y').date()
+            datastr.append(date)
+
         pastadetrabalhogetnet.close()
         pastadetrabalhocbb.close()
         connection = create_server_connection("localhost", "root", "wolf")
-
+        print(datastr)
 
         for j in range(0, len(valoresgetnet)):
             usardb = "USE fluxodecaixa"
-            inserir = "INSERT INTO getnet (dataatual, valor) VALUES ('{}', '{}')".format(datasgetnet[j], valoresgetnet[j])
+            inserir = "INSERT INTO getnet (dataatual, valor) VALUES ('{}', '{}')".format(datastr[j], valoresgetnet[j])
             execute_query(connection, usardb)
             execute_query(connection, inserir)
 
