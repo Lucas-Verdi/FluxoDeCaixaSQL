@@ -21,6 +21,8 @@ datascbb = []
 
 datastr = []
 
+results = []
+
 def create_server_connection(host_name, user_name, user_password):
     connection = None
     try:
@@ -88,6 +90,7 @@ class Th(Thread):
         global pastadetrabalhogetnet
         global valoresgetnet
         global datastr
+        global results
 
         pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
         planilha = pastadetrabalhogetnet.sheets['Planilha1']
@@ -137,6 +140,26 @@ class Th(Thread):
             inserir = "INSERT INTO bbrasil (dataatual, valor) VALUES ('{}', '{}')".format(datascbb[y], valorescbb[y])
             execute_query(connection, usardb)
             execute_query(connection, inserir)
+
+        conn = mysql.connector.connect(
+            host="localhost",
+            user="root",
+            password="wolf",
+            database="fluxodecaixa"
+        )
+        cursor = conn.cursor()
+        cursor.execute("SELECT g.dataatual, g.valor FROM getnet AS g LEFT JOIN bbrasil AS b ON (g.dataatual = b.dataatual) GROUP BY g.dataatual,g.valor;")
+        results = cursor.fetchall()
+
+
+
+
+        print(results)
+
+        cursor.close()
+        conn.close()
+
+
 
 
 #INTERFACE
