@@ -23,6 +23,7 @@ datastr = []
 
 results = []
 
+
 def create_server_connection(host_name, user_name, user_password):
     connection = None
     try:
@@ -92,6 +93,7 @@ class Th(Thread):
         global datastr
         global results
 
+
         pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
         planilha = pastadetrabalhogetnet.sheets['Planilha1']
 
@@ -151,8 +153,10 @@ class Th(Thread):
         cursor.execute("SELECT g.dataatual, g.valor FROM getnet AS g LEFT JOIN bbrasil AS b ON (g.dataatual = b.dataatual) GROUP BY g.dataatual,g.valor;")
         results = cursor.fetchall()
 
-
-
+        app = xlwings.App()
+        workbook = app.books.add()
+        sheet = workbook.sheets.active
+        sheet.range('A1').value = results
 
         print(results)
 
