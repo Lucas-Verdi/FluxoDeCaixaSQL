@@ -72,9 +72,11 @@ def truncate():
     usardb = "USE fluxodecaixa"
     truncate = "TRUNCATE TABLE getnet"
     truncate2 = "TRUNCATE TABLE bbrasil"
+    truncate3 = "TRUNCATE TABLE results"
     execute_query(connection, usardb)
     execute_query(connection, truncate)
     execute_query(connection, truncate2)
+    execute_query(connection, truncate3)
 
 def start():
     a = Th(1)
@@ -149,8 +151,15 @@ class Th(Thread):
             password="wolf",
             database="fluxodecaixa"
         )
+
+
+        usardbglobal = "USE fluxodecaixa"
+        insertselect = "INSERT INTO results (dataatualbb, valorbb, somaacumuladabb) SELECT dataatual, valor, sum(valor) OVER (PARTITION BY dataatual ORDER BY dataatual) AS soma_acumulada FROM bbrasil GROUP BY dataatual, valor ORDER BY dataatual;"
+        execute_query(connection, usardbglobal)
+        execute_query(connection, insertselect)
+
         cursor = conn.cursor()
-        cursor.execute("SELECT g.dataatual, g.valor FROM getnet AS g LEFT JOIN bbrasil AS b ON (g.dataatual = b.dataatual) GROUP BY g.dataatual,g.valor;")
+        cursor.execute("SELECT dataatualbb, somaacumuladabb FROM results;")
         results = cursor.fetchall()
 
         app = xlwings.App()
