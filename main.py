@@ -169,10 +169,14 @@ class Th(Thread):
         insertfinal = "INSERT INTO final (datafinal, valorfinal) SELECT d.dataatual, (d.somaacumulada + getnet.valor) FROM distinctbb AS d, getnet WHERE d.dataatual = getnet.dataatual ORDER BY d.dataatual;"
         execute_query(connection, insertfinal)
 
-        #app = xlwings.App()
-        #workbook = app.books.add()
-        #sheet = workbook.sheets.active
-        #sheet.range('A1').value = results
+        cursor = conn.cursor()
+        cursor.execute("SELECT d.dataatual, (d.somaacumulada + getnet.valor) FROM distinctbb AS d, getnet WHERE d.dataatual = getnet.dataatual ORDER BY d.dataatual;")
+        results = cursor.fetchall()
+
+        app = xlwings.App()
+        workbook = app.books.add()
+        sheet = workbook.sheets.active
+        sheet.range('A1').value = results
 
 
 
