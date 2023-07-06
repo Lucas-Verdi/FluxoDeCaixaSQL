@@ -164,19 +164,16 @@ class Th(Thread):
         insertdistinct = "INSERT INTO distinctbb (dataatual, somaacumulada) SELECT DISTINCT dataatualbb, somaacumuladabb FROM resultsbb"
         execute_query(connection, insertdistinct)
 
-        #cursor = conn.cursor()
-        #cursor.execute("SELECT dataatualbb, somaacumuladabb FROM results;")
-        #results = cursor.fetchall()
+
 
         #app = xlwings.App()
         #workbook = app.books.add()
         #sheet = workbook.sheets.active
         #sheet.range('A1').value = results
 
-        print(results)
 
-        #cursor.close()
-        #conn.close()
+
+
 
 
 
