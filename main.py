@@ -72,7 +72,7 @@ def truncate():
     usardb = "USE fluxodecaixa"
     truncate = "TRUNCATE TABLE getnet"
     truncate2 = "TRUNCATE TABLE bbrasil"
-    truncate3 = "TRUNCATE TABLE results"
+    truncate3 = "TRUNCATE TABLE resultsbb"
     execute_query(connection, usardb)
     execute_query(connection, truncate)
     execute_query(connection, truncate2)
@@ -154,27 +154,29 @@ class Th(Thread):
 
 
         usardbglobal = "USE fluxodecaixa"
-        insertselect = "INSERT INTO results (dataatualbb, valorbb, somaacumuladabb) SELECT dataatual, valor, sum(valor) OVER (PARTITION BY dataatual ORDER BY dataatual) AS soma_acumulada FROM bbrasil GROUP BY dataatual, valor ORDER BY dataatual;"
-        insertselect2 = "INSERT INTO results (dataatualgt, valorgt) SELECT dataatual, valor FROM getnet ORDER BY dataatual;"
+        insertselect = "INSERT INTO resultsbb (dataatualbb, somaacumuladabb) SELECT dataatual, sum(valor) OVER (PARTITION BY dataatual ORDER BY dataatual) AS soma_acumulada FROM bbrasil GROUP BY dataatual, valor ORDER BY dataatual;"
+        #insertselect2 = "INSERT INTO results (dataatualgt, valorgt) SELECT dataatual, valor FROM getnet ORDER BY dataatual;"
         execute_query(connection, usardbglobal)
         execute_query(connection, insertselect)
-        execute_query(connection, insertselect2)
+        #execute_query(connection, insertselect2)
 
 
+        insertdistinct = "INSERT INTO distinctbb (dataatual, somaacumulada) SELECT DISTINCT dataatualbb, somaacumuladabb FROM resultsbb"
+        execute_query(connection, insertdistinct)
 
-        cursor = conn.cursor()
-        cursor.execute("SELECT dataatualbb, somaacumuladabb FROM results;")
-        results = cursor.fetchall()
+        #cursor = conn.cursor()
+        #cursor.execute("SELECT dataatualbb, somaacumuladabb FROM results;")
+        #results = cursor.fetchall()
 
-        app = xlwings.App()
-        workbook = app.books.add()
-        sheet = workbook.sheets.active
-        sheet.range('A1').value = results
+        #app = xlwings.App()
+        #workbook = app.books.add()
+        #sheet = workbook.sheets.active
+        #sheet.range('A1').value = results
 
         print(results)
 
-        cursor.close()
-        conn.close()
+        #cursor.close()
+        #conn.close()
 
 
 
