@@ -155,10 +155,8 @@ class Th(Thread):
 
         usardbglobal = "USE fluxodecaixa"
         insertselect = "INSERT INTO resultsbb (dataatualbb, somaacumuladabb) SELECT dataatual, sum(valor) OVER (PARTITION BY dataatual ORDER BY dataatual) AS soma_acumulada FROM bbrasil GROUP BY dataatual, valor ORDER BY dataatual;"
-        #insertselect2 = "INSERT INTO results (dataatualgt, valorgt) SELECT dataatual, valor FROM getnet ORDER BY dataatual;"
         execute_query(connection, usardbglobal)
         execute_query(connection, insertselect)
-        #execute_query(connection, insertselect2)
 
 
         insertdistinct = "INSERT INTO distinctbb (dataatual, somaacumulada) SELECT DISTINCT dataatualbb, somaacumuladabb FROM resultsbb"
