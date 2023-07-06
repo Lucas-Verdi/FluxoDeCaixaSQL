@@ -73,10 +73,14 @@ def truncate():
     truncate = "TRUNCATE TABLE getnet"
     truncate2 = "TRUNCATE TABLE bbrasil"
     truncate3 = "TRUNCATE TABLE resultsbb"
+    truncate4 = "TRUNCATE TABLE distinctbb"
+    truncate5 = "TRUNCATE TABLE final"
     execute_query(connection, usardb)
     execute_query(connection, truncate)
     execute_query(connection, truncate2)
     execute_query(connection, truncate3)
+    execute_query(connection, truncate4)
+    execute_query(connection, truncate5)
 
 def start():
     a = Th(1)
@@ -162,7 +166,8 @@ class Th(Thread):
         insertdistinct = "INSERT INTO distinctbb (dataatual, somaacumulada) SELECT DISTINCT dataatualbb, somaacumuladabb FROM resultsbb"
         execute_query(connection, insertdistinct)
 
-
+        insertfinal = "INSERT INTO final (datafinal, valorfinal) SELECT d.dataatual, (d.somaacumulada + getnet.valor) FROM distinctbb AS d, getnet WHERE d.dataatual = getnet.dataatual ORDER BY d.dataatual;"
+        execute_query(connection, insertfinal)
 
         #app = xlwings.App()
         #workbook = app.books.add()
