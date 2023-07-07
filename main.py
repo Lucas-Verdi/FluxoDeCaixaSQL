@@ -23,6 +23,8 @@ datastr = []
 
 results = []
 
+sobrasbb = []
+
 
 def create_server_connection(host_name, user_name, user_password):
     connection = None
@@ -98,6 +100,7 @@ class Th(Thread):
         global valoresgetnet
         global datastr
         global results
+        global sobrasbb
 
 
         pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
@@ -178,7 +181,13 @@ class Th(Thread):
         sheet = workbook.sheets.active
         sheet.range('A1').value = results
 
-        #a
+        cursor2 = conn.cursor()
+        cursor2.execute("SELECT dataatual, somaacumulada FROM distinctbb WHERE dataatual NOT IN (select dataatual FROM getnet);")
+        sobrasbb = cursor2.fetchall()
+
+        sheet.range('D1').value = sobrasbb
+
+        #SELECT dataatual, somaacumulada FROM distinctbb WHERE dataatual NOT IN (select dataatual from getnet);
 
 
 
