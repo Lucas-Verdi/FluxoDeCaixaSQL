@@ -185,7 +185,8 @@ class Th(Thread):
         cursor2.execute("SELECT dataatual, somaacumulada FROM distinctbb WHERE dataatual NOT IN (select dataatual FROM getnet);")
         sobrasbb = cursor2.fetchall()
 
-        sheet.range('D1').value = sobrasbb
+        last_row = sheet.range('A1').end('down').row
+        sheet.range("A{}".format(last_row + 1)).value = sobrasbb
 
         #SELECT dataatual, somaacumulada FROM distinctbb WHERE dataatual NOT IN (select dataatual from getnet);
 
