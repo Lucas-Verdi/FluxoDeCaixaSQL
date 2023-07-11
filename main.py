@@ -25,6 +25,8 @@ results = []
 
 sobrasbb = []
 
+sobrasgt = []
+
 
 def create_server_connection(host_name, user_name, user_password):
     connection = None
@@ -101,6 +103,7 @@ class Th(Thread):
         global datastr
         global results
         global sobrasbb
+        global sobrasgt
 
 
         pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
@@ -135,8 +138,7 @@ class Th(Thread):
             date = datetime.strptime(datasgetnet[c], '%d/%m/%Y').date()
             datastr.append(date)
 
-        pastadetrabalhogetnet.close()
-        pastadetrabalhocbb.close()
+
         connection = create_server_connection("localhost", "root", "wolf")
         print(datastr)
 
@@ -185,10 +187,17 @@ class Th(Thread):
         cursor2.execute("SELECT dataatual, somaacumulada FROM distinctbb WHERE dataatual NOT IN (select dataatual FROM getnet);")
         sobrasbb = cursor2.fetchall()
 
+        cursor3 = conn.cursor()
+        cursor3.execute("SELECT dataatual, valor FROM getnet WHERE dataatual NOT IN (select dataatual FROM distinctbb);")
+        sobrasgt = cursor3.fetchall()
+
         last_row = sheet.range('A1').end('down').row
         sheet.range("A{}".format(last_row + 1)).value = sobrasbb
+        last_row2 = sheet.range('A1').end('down').row
+        sheet.range("A{}".format(last_row2 + 1)).value = sobrasbb = sobrasgt
 
-        #SELECT dataatual, somaacumulada FROM distinctbb WHERE dataatual NOT IN (select dataatual from getnet);
+        pastadetrabalhogetnet.close()
+        pastadetrabalhocbb.close()
 
 
 
