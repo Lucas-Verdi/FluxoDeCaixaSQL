@@ -286,13 +286,14 @@ class Th(Thread):
 
 
 
+
 #INTERFACE
 janela = Tk()
 janela.title('FLUXO DE CAIXA')
-janela.geometry("300x300")
+janela.geometry("500x300")
 
 Label1 = Label(janela, text='Insira as pastas de trabalho:', font="Arial 10 bold", justify=CENTER)
-Label1.grid(column=0, row=0, padx=50, pady=10)
+Label1.grid(column=0, row=0, padx=150, pady=10)
 
 Botao1 = Button(janela, text='GETNET', font="Arial 10")
 Botao1.grid(column=0, row=1, padx=10, pady=10)
