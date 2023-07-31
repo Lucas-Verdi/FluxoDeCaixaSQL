@@ -7,6 +7,7 @@ from tkinter import filedialog
 from threading import Thread
 import mysql.connector
 from mysql.connector import Error
+import datetime
 from datetime import datetime
 
 arquivogetnet = None
@@ -32,6 +33,11 @@ datascontas = []
 valorescontas = []
 valorescontasf = []
 contasfinal = []
+
+count = 2
+count2 = 0
+
+coluna_a = []
 
 
 def create_server_connection(host_name, user_name, user_password):
@@ -118,7 +124,9 @@ class Th(Thread):
         global results
         global sobrasbb
         global sobrasgt
-
+        global count
+        global count2
+        global coluna_a
 
         pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
         planilha = pastadetrabalhogetnet.sheets['Planilha1']
@@ -219,7 +227,7 @@ class Th(Thread):
         app = xlwings.App()
         workbook = app.books.add()
         sheet = workbook.sheets.active
-        sheet.range('A1').value = results
+        sheet.range('A2').value = results
 
         cursor2 = conn.cursor()
         cursor2.execute("SELECT dataatual, somaacumulada FROM distinctbb WHERE dataatual NOT IN (select dataatual FROM getnet);")
@@ -233,17 +241,44 @@ class Th(Thread):
         cursor4.execute('SELECT DISTINCT data, sum(valor) OVER (PARTITION BY data ORDER BY data) AS soma_acumulada FROM contas ORDER BY data;')
         contasfinal = cursor4.fetchall()
 
-        last_row = sheet.range('A1').end('down').row
+        last_row = sheet.range('A2').end('down').row
         sheet.range("A{}".format(last_row + 1)).value = sobrasbb
-        last_row2 = sheet.range('A1').end('down').row
+        last_row2 = sheet.range('A2').end('down').row
         sheet.range("A{}".format(last_row2 + 1)).value = sobrasbb = sobrasgt
 
-        sheet.range('C1').value = contasfinal
+        for i in range(2, last_row + 1):
+            valtemp = sheet.range('A{}'.format(i)).value
+            coluna_a.append(valtemp)
+
+        datascontasfinal = [data for data, _ in contasfinal]
+
+        for obj in coluna_a:
+            x = obj.date()
+            if x in datascontasfinal:
+                index = datascontasfinal.index(x)
+                sheet.range('D{}'.format(count)).value = obj
+                sheet.range('E{}'.format(count)).value = contasfinal[index][1]
+                count += 1
+            else:
+                print('Não existe')
+                count += 1
+
+
+        #sheet.range('D2').value = contasfinal
+
+        sheet.range('D1:E1').merge()
+        sheet.range('D1').value = "A pagar"
+
+        sheet.range('A1:B1').merge()
+        sheet.range('A1').value = "A receber"
+
 
         pastadetrabalhogetnet.close()
         pastadetrabalhocbb.close()
         pastadetrabalhocontas.close()
-        print(valorescontasf)
+
+        print(coluna_a)
+        print(datascontasfinal)
 
 
 
