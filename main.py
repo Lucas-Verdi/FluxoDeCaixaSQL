@@ -89,23 +89,6 @@ def ler3():
     labelbt3 = Label(janela, text="{} CARREGADO".format(arquivocontas), font="Arial 7")
     labelbt3.grid(column=0, row=6)
 
-def truncate():
-    connection = create_server_connection("192.168.0.247", "wolf", "wolf")
-    usardb = "USE fluxodecaixa"
-    truncate = "TRUNCATE TABLE getnet"
-    truncate2 = "TRUNCATE TABLE bbrasil"
-    truncate3 = "TRUNCATE TABLE resultsbb"
-    truncate4 = "TRUNCATE TABLE distinctbb"
-    truncate5 = "TRUNCATE TABLE final"
-    truncate6 = "TRUNCATE TABLE contas"
-    execute_query(connection, usardb)
-    execute_query(connection, truncate)
-    execute_query(connection, truncate2)
-    execute_query(connection, truncate3)
-    execute_query(connection, truncate4)
-    execute_query(connection, truncate5)
-    execute_query(connection, truncate6)
-
 def start():
     a = Th(1)
     a.start()
@@ -213,7 +196,6 @@ class Th(Thread):
         execute_query(connection, usardbglobal)
         execute_query(connection, insertselect)
 
-
         insertdistinct = "INSERT INTO distinctbb (dataatual, somaacumulada) SELECT DISTINCT dataatualbb, somaacumuladabb FROM resultsbb"
         execute_query(connection, insertdistinct)
 
@@ -260,11 +242,8 @@ class Th(Thread):
                 sheet.range('E{}'.format(count)).value = contasfinal[index][1]
                 count += 1
             else:
-                print('Não existe')
                 count += 1
 
-
-        #sheet.range('D2').value = contasfinal
 
         sheet.range('D1:E1').merge()
         sheet.range('D1').value = "A pagar"
@@ -278,24 +257,12 @@ class Th(Thread):
         pastadetrabalhocontas.close()
 
 
-
-        print(coluna_a)
-        print(datascontasfinal)
-
-
         cursor.execute("TRUNCATE TABLE contas;")
         cursor.execute("TRUNCATE TABLE getnet;")
         cursor.execute("TRUNCATE TABLE bbrasil;")
         cursor.execute("TRUNCATE TABLE resultsbb;")
         cursor.execute("TRUNCATE TABLE distinctbb;")
         cursor.execute("TRUNCATE TABLE final;")
-
-
-
-
-
-
-
 
 
 
@@ -322,10 +289,6 @@ botao4.bind("<Button>", lambda e: ler3())
 botao3 = Button(janela, text="GERAR CONTROLE", font="Arial 10")
 botao3.grid(column=0, row=7, padx=10, pady=10)
 botao3.bind("<Button>", lambda e: start())
-
-truncatebtn = Button(janela, text="TRUNCATE", font="Arial 10")
-truncatebtn.grid(column=0, row=8, padx=10, pady=10)
-truncatebtn.bind("<Button>", lambda e: truncate())
 
 janela.mainloop()
 
