@@ -90,7 +90,7 @@ def ler3():
     labelbt3.grid(column=0, row=6)
 
 def truncate():
-    connection = create_server_connection("localhost", "root", "wolf")
+    connection = create_server_connection("192.168.0.247", "wolf", "wolf")
     usardb = "USE fluxodecaixa"
     truncate = "TRUNCATE TABLE getnet"
     truncate2 = "TRUNCATE TABLE bbrasil"
@@ -179,7 +179,7 @@ class Th(Thread):
             valorescontasf.append(valtemp)
 
 
-        connection = create_server_connection("localhost", "root", "wolf")
+        connection = create_server_connection("192.168.0.247", "wolf", "wolf")
 
 
         for j in range(0, len(valoresgetnet)):
@@ -201,8 +201,8 @@ class Th(Thread):
             execute_query(connection, inserir)
 
         conn = mysql.connector.connect(
-            host="localhost",
-            user="root",
+            host="192.168.0.247",
+            user="wolf",
             password="wolf",
             database="fluxodecaixa"
         )
@@ -277,8 +277,20 @@ class Th(Thread):
         pastadetrabalhocbb.close()
         pastadetrabalhocontas.close()
 
+
+
         print(coluna_a)
         print(datascontasfinal)
+
+
+        cursor.execute("TRUNCATE TABLE contas;")
+        cursor.execute("TRUNCATE TABLE getnet;")
+        cursor.execute("TRUNCATE TABLE bbrasil;")
+        cursor.execute("TRUNCATE TABLE resultsbb;")
+        cursor.execute("TRUNCATE TABLE distinctbb;")
+        cursor.execute("TRUNCATE TABLE final;")
+
+
 
 
 
