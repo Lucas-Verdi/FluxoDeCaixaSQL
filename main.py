@@ -162,7 +162,7 @@ class Th(Thread):
             valorescontasf.append(valtemp)
 
 
-        connection = create_server_connection("192.168.0.247", "wolf", "wolf")
+        connection = create_server_connection("localhost", "root", "wolf")
 
 
         for j in range(0, len(valoresgetnet)):
@@ -184,8 +184,8 @@ class Th(Thread):
             execute_query(connection, inserir)
 
         conn = mysql.connector.connect(
-            host="192.168.0.247",
-            user="wolf",
+            host="localhost",
+            user="root",
             password="wolf",
             database="fluxodecaixa"
         )
