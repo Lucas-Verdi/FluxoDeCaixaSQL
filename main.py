@@ -162,7 +162,7 @@ class Th(Thread):
             valorescontasf.append(valtemp)
 
 
-        connection = create_server_connection("localhost", "root", "wolf")
+        connection = create_server_connection("192.168.0.200", "root", "wolf")
 
 
         for j in range(0, len(valoresgetnet)):
@@ -184,7 +184,7 @@ class Th(Thread):
             execute_query(connection, inserir)
 
         conn = mysql.connector.connect(
-            host="localhost",
+            host="192.168.0.200",
             user="root",
             password="wolf",
             database="fluxodecaixa"
@@ -263,6 +263,8 @@ class Th(Thread):
         cursor.execute("TRUNCATE TABLE resultsbb;")
         cursor.execute("TRUNCATE TABLE distinctbb;")
         cursor.execute("TRUNCATE TABLE final;")
+
+        print(datastr)
 
 
 
