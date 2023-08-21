@@ -34,6 +34,8 @@ valorcontasfloat = []
 
 count = 2
 count2 = 0
+count3 = 2
+count4 = 2
 
 contdata = 3
 contdata2 = 1
@@ -43,6 +45,10 @@ fimbb = []
 fimdespesas = []
 
 colunadatas = []
+
+getnetdatafim = []
+
+datadata = []
 
 def create_server_connection(host_name, user_name, user_password):
     connection = None
@@ -110,6 +116,9 @@ class Th(Thread):
         global count2
         global contdata
         global contdata2
+        global count3
+        global count4
+        global datadata
 
 
         pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
@@ -213,13 +222,28 @@ class Th(Thread):
         cursor3.execute("SELECT * FROM despesas ORDER BY data")
         fimdespesas = cursor.fetchall()
 
-        last_rowdatas = workbook.range('A2').end('down').row
+        last_rowdatas = sheet.range('A2').end('down').row
 
-        for i in range(0, last_rowdatas + 1):
-            temp = workbook.range('A{}'.format(i)).value
+        for i in range(2, last_rowdatas + 1):
+            temp = sheet.range('A{}'.format(i)).value
             colunadatas.append(temp)
 
-        print(colunadatas)
+        for i in range(0, len(colunadatas)):
+            temp = colunadatas[i]
+            data = temp.date()
+            datadata.append(data)
+
+        local = []
+        for i in range(0, len(datadata)):
+            temp = fimgetnet[i][1]
+            local.append(temp)
+            if datadata[i] in local and datadata[i] >= x.date():
+                sheet.range('C{}'.format(count3)).value = fimgetnet[i][2]
+            elif datadata[i] not in local and datadata[i] >= x.date():
+                count3 += 1
+
+        print(datadata)
+        print(local)
 
         pastadetrabalhogetnet.close()
         pastadetrabalhocbb.close()
