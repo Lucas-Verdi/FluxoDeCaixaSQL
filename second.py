@@ -36,6 +36,8 @@ count = 2
 count2 = 0
 count3 = 2
 count4 = 2
+count5 = 2
+count6 = 2
 
 contdata = 3
 contdata2 = 1
@@ -50,6 +52,7 @@ getnetdatafim = []
 
 datadata = []
 
+#FUNÇÃO PARA EXECUTAR COMANDOS NO MYSQL
 def create_server_connection(host_name, user_name, user_password):
     connection = None
     try:
@@ -71,6 +74,7 @@ def create_database(connection, query):
     except Error as err:
         print(f"Error: '{err}'")
 
+#FUNÇÃO DE RETORNO DA EXECUÇÃO DAS QUERYS NO MYSQL
 def execute_query(connection, query):
     cursor = connection.cursor()
     try:
@@ -80,25 +84,28 @@ def execute_query(connection, query):
     except Error as err:
         print(f"Error: '{err}'")
 
+#LER O PRIMEIRO ARQUIVO
 def ler1():
     global arquivogetnet
     arquivogetnet = filedialog.askopenfilename()
     labelbt1 = Label(janela, text="{} CARREGADO".format(arquivogetnet), font="Arial 7")
     labelbt1.grid(column=0, row=3)
 
-
+#LER O SEGUNDO ARQUIVO
 def ler2():
     global arquivocbb
     arquivocbb = filedialog.askopenfilename()
     labelbt2 = Label(janela, text="{} CARREGADO".format(arquivocbb), font="Arial 7")
     labelbt2.grid(column=0, row=4)
 
+#LER O TERCEIRO ARQUIVO
 def ler3():
     global arquivocontas
     arquivocontas = filedialog.askopenfilename()
     labelbt3 = Label(janela, text="{} CARREGADO".format(arquivocontas), font="Arial 7")
     labelbt3.grid(column=0, row=6)
 
+#THREADING
 def start():
     a = Th(1)
     a.start()
@@ -118,9 +125,11 @@ class Th(Thread):
         global contdata2
         global count3
         global count4
+        global count5
         global datadata
+        global count6
 
-
+        #VARIÁVEIS DE ARMAZENAMENTO PARA ARQUIVOS INSERIDOS E IDENTIFICAÇÃO DE PLANILHAS
         pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
         planilha = pastadetrabalhogetnet.sheets['Planilha1']
 
@@ -130,6 +139,7 @@ class Th(Thread):
         pastadetrabalhocontas = xlwings.Book(arquivocontas)
         planilhacontas = pastadetrabalhocontas.sheets[0]
 
+        #REFERÊNCIA DE LOOP PARA A LEITURA DOS DADOS
         getnetdata = planilha.range('A1').end('down').row
         getnetvalor = planilha.range('B1').end('down').row
 
@@ -137,12 +147,14 @@ class Th(Thread):
 
         despesaslr = planilhacontas.range('A9').end('down').row
 
+        #LENDO DADOS EM GETNET
         for i in range(1, getnetdata + 1):
             data = planilha.range('A{}'.format(i)).value
             valor = planilha.range('B{}'.format(i)).value
             datagetnet.append(data)
             valorgetnet.append(valor)
 
+        #LENDO DADOS EM BANCO DO BRASIL
         for i in range(1, bblastrow + 1):
             cell = planilhacbb.range('D{}'.format(i)).value
             if cell == None:
@@ -151,6 +163,7 @@ class Th(Thread):
                 databb.append(data)
                 valorbb.append(valor)
 
+        #LENDO DADOS EM DESPESAS
         for i in range(9, despesaslr):
             cell = planilhacontas.range('B{}'.format(i)).value
             if cell == None:
@@ -159,6 +172,7 @@ class Th(Thread):
                 datacontas.append(data)
                 valorcontas.append(valor)
 
+        #TRATAMENTO DE DADOS
         for i in range(0, len(datagetnet)):
             date = datetime.strptime(datagetnet[i], '%d/%m/%Y').date()
             datastr.append(date)
@@ -167,12 +181,14 @@ class Th(Thread):
             valor = float(valorcontas[i])
             valorcontasfloat.append(valor)
 
+        #CONEXÃO PADRÃO COM O SERVIDOR MYSQL
         connection = create_server_connection("localhost", "root", "wolf")
 
 
         usardb = "USE fluxodecaixa;"
         execute_query(connection, usardb)
 
+        #INSERÇÃO DE DADOS NO SERVIDOR MYSQL
         for i in range(0, len(datastr)):
             inserir = "INSERT INTO getnet (data, valor) VALUES ('{}', '{}');".format(datastr[i], valorgetnet[i])
             execute_query(connection, inserir)
@@ -185,8 +201,10 @@ class Th(Thread):
             inserir = "INSERT INTO despesas (data, valor) VALUES ('{}', '{}')".format(datacontas[i], valorcontasfloat[i])
             execute_query(connection, inserir)
 
+        #DATA ATUAL
         x = datetime.now()
 
+        #FORMATAÇÃO DA PLANILHA RESULTADO
         app = xlwings.App()
         workbook = app.books.add()
         sheet = workbook.sheets.active
@@ -197,12 +215,14 @@ class Th(Thread):
 
         sheet.range('A2').value = x.strftime("%x")
 
-        for i in range(0, 1095):
+        #INSERINDO DATAS SEQUENCIAIS NA COLUNA A NO PERÍODO DE 4 ANOS
+        for i in range(0, 1460):
             x_incremento = x + timedelta(days=contdata2)
             sheet.range('A{}'.format(contdata)).value = x_incremento.strftime("%x")
             contdata += 1
             contdata2 += 1
 
+        #CONEXÃO COM O SERVIDOR MYSQL
         conn = mysql.connector.connect(
             host="localhost",
             user="root",
@@ -210,6 +230,7 @@ class Th(Thread):
             database="fluxodecaixa"
         )
 
+        #SELECIONANDO OS DADOS DO BANCO DE DADOS E ARMAZENANDO EM VETORES
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM getnet ORDER BY data")
         fimgetnet = cursor.fetchall()
@@ -222,28 +243,69 @@ class Th(Thread):
         cursor3.execute("SELECT * FROM despesas ORDER BY data")
         fimdespesas = cursor.fetchall()
 
+        #IDENTIFICANDO A ULTIMA LINHA COM DADOS NA COLUNA DE DATAS
         last_rowdatas = sheet.range('A2').end('down').row
 
+
+        #ARMAZENANDO COLUNA DE DATAS
         for i in range(2, last_rowdatas + 1):
             temp = sheet.range('A{}'.format(i)).value
             colunadatas.append(temp)
 
+        #TRATANDO OS DADOS DE DATAS PARA O TIPO DATE
         for i in range(0, len(colunadatas)):
             temp = colunadatas[i]
             data = temp.date()
             datadata.append(data)
 
+        #GETNET
         local = []
-        for i in range(0, len(datadata)):
+        for i in range(0, len(fimgetnet)):
             temp = fimgetnet[i][1]
             local.append(temp)
-            if datadata[i] in local and datadata[i] >= x.date():
-                sheet.range('C{}'.format(count3)).value = fimgetnet[i][2]
-            elif datadata[i] not in local and datadata[i] >= x.date():
+
+        for i in range(0, len(datadata)):
+            valor = datadata[i]
+            if valor in local:
+                indice = local.index(valor)
+                sheet.range('C{}'.format(count3)).value = fimgetnet[indice][2]
+                count3 += 1
+            else:
+                print('{} Not in list'.format(valor))
                 count3 += 1
 
-        print(datadata)
-        print(local)
+
+        #BANCO DO BRASIL
+        local2 = []
+        for i in range(0, len(fimbb)):
+            temp = fimbb[i][1]
+            local2.append(temp)
+
+        for i in range(0, len(datadata)):
+            valor = datadata[i]
+            if valor in local2:
+                indice = local2.index(valor)
+                sheet.range('B{}'.format(count5)).value = fimbb[indice][2]
+                count5 += 1
+            else:
+                print('{} Not in list'.format(valor))
+                count5 += 1
+
+        #DESPESAS
+        local3 = []
+        for i in range(0, len(fimdespesas)):
+            temp = fimdespesas[i][1]
+            local3.append(temp)
+
+        for i in range(0, len(datadata)):
+            valor = datadata[i]
+            if valor in local3:
+                indice = local3.index(valor)
+                sheet.range('D{}'.format(count6)).value = fimdespesas[indice][2]
+                count6 += 1
+            else:
+                print('{} Not in list'.format(valor))
+                count6 += 1
 
         pastadetrabalhogetnet.close()
         pastadetrabalhocbb.close()
