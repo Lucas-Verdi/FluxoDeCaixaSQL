@@ -141,11 +141,10 @@ class Th(Thread):
 
         #REFERÊNCIA DE LOOP PARA A LEITURA DOS DADOS
         getnetdata = planilha.range('A1').end('down').row
-        getnetvalor = planilha.range('B1').end('down').row
 
         bblastrow = planilhacbb.range('A1').end('down').row
 
-        despesaslr = planilhacontas.range('A9').end('down').row
+        despesaslr = planilhacontas.range('A1').end('down').row
 
         #LENDO DADOS EM GETNET
         for i in range(1, getnetdata + 1):
@@ -164,7 +163,7 @@ class Th(Thread):
                 valorbb.append(valor)
 
         #LENDO DADOS EM DESPESAS
-        for i in range(9, despesaslr):
+        for i in range(1, despesaslr):
             cell = planilhacontas.range('B{}'.format(i)).value
             if cell == None:
                 data = planilhacontas.range('A{}'.format(i - 1)).value
@@ -182,7 +181,7 @@ class Th(Thread):
             valorcontasfloat.append(valor)
 
         #CONEXÃO PADRÃO COM O SERVIDOR MYSQL
-        connection = create_server_connection("localhost", "root", "wolf")
+        connection = create_server_connection("192.168.0.200", "root", "wolf")
 
 
         usardb = "USE fluxodecaixa;"
@@ -224,7 +223,7 @@ class Th(Thread):
 
         #CONEXÃO COM O SERVIDOR MYSQL
         conn = mysql.connector.connect(
-            host="localhost",
+            host="192.168.0.200",
             user="root",
             password="wolf",
             database="fluxodecaixa"
