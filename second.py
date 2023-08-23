@@ -306,6 +306,13 @@ class Th(Thread):
                 print('{} Not in list'.format(valor))
                 count6 += 1
 
+        cursor4 = conn.cursor()
+        cursor4.execute("TRUNCATE getnet;")
+        cursor5 = conn.cursor()
+        cursor5.execute("TRUNCATE bbrasil;")
+        cursor6 = conn.cursor()
+        cursor6.execute("TRUNCATE despesas;")
+
         pastadetrabalhogetnet.close()
         pastadetrabalhocbb.close()
         pastadetrabalhocontas.close()
