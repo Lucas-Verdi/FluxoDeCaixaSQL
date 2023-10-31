@@ -165,7 +165,7 @@ class Th(Thread):
 
         #VARIÁVEIS DE ARMAZENAMENTO PARA ARQUIVOS INSERIDOS E IDENTIFICAÇÃO DE PLANILHAS
         pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
-        planilha = pastadetrabalhogetnet.sheets['Planilha1']
+        planilha = pastadetrabalhogetnet.sheets[1]
 
         pastadetrabalhocbb = xlwings.Book(arquivocbb)
         planilhacbb = pastadetrabalhocbb.sheets['Planilha1']
@@ -180,7 +180,7 @@ class Th(Thread):
         planilhadeposito = pastadetrabalhodeposito.sheets[0]
 
         #REFERÊNCIA DE LOOP PARA A LEITURA DOS DADOS
-        getnetdata = planilha.range('A1').end('down').row
+        getnetlr = planilha.range('D4').end('down').row
 
         bblastrow = planilhacbb.range('A1').end('down').row
 
@@ -191,11 +191,13 @@ class Th(Thread):
         depositolr = planilhadeposito.range('H1').end('down').row
 
         #LENDO DADOS EM GETNET
-        for i in range(1, getnetdata + 1):
-            data = planilha.range('A{}'.format(i)).value
-            valor = planilha.range('B{}'.format(i)).value
-            datagetnet.append(data)
-            valorgetnet.append(valor)
+        for i in range(5, getnetlr):
+            cell = planilha.range('B{}'.format(i)).value
+            if cell == None:
+                data = planilha.range('B{}'.format(i - 1)).value
+                valor = planilha.range('D{}'.format(i)).value
+                datagetnet.append(data)
+                valorgetnet.append(valor)
 
         #LENDO DADOS EM BANCO DO BRASIL
         for i in range(1, bblastrow + 1):
