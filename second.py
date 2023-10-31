@@ -107,7 +107,7 @@ def ler1():
     global arquivogetnet
     arquivogetnet = filedialog.askopenfilename()
     labelbt1 = Label(janela, text="{} CARREGADO".format(arquivogetnet), font="Arial 7")
-    labelbt1.grid(column=0, row=3)
+    labelbt1.grid(column=0, row=2)
 
 #LER O SEGUNDO ARQUIVO
 def ler2():
@@ -440,6 +440,7 @@ class Th(Thread):
         pastadetrabalhogetnet.close()
         pastadetrabalhocbb.close()
         pastadetrabalhocontas.close()
+        pastadetrabalhosafra.close()
         pastadetrabalhodeposito.close()
 
 
@@ -456,7 +457,7 @@ Botao1.grid(column=0, row=1, padx=10, pady=10)
 Botao1.bind("<Button>", lambda e: ler1())
 
 botao2 = Button(janela, text="COBRANCABB", font="Arial 10")
-botao2.grid(column=0, row=2, padx=10, pady=10)
+botao2.grid(column=0, row=3, padx=10, pady=10)
 botao2.bind("<Button>", lambda e: ler2())
 
 botao4 = Button(janela, text="CONTAS A PAGAR", font="Arial 10")
