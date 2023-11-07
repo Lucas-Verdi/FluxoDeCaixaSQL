@@ -25,6 +25,9 @@ pastadetrabalhosafra = None
 arquivodeposito = None
 pastadetrabalhodeposito = None
 
+arquivosantander = None
+pastadetrabalhosantander = None
+
 datadeposito = []
 valordeposito = []
 
@@ -40,7 +43,11 @@ valorcontas = []
 datasafra = []
 valorsafra = []
 
+datasantander = []
+valorsantander = []
+
 datastr = []
+datasantanderstr = []
 
 valorcontasfloat = []
 
@@ -54,6 +61,7 @@ count5 = 2
 count6 = 2
 count7 = 2
 count8 = 2
+count9 = 2
 
 contdata = 3
 contdata2 = 1
@@ -63,6 +71,7 @@ fimbb = []
 fimdespesas = []
 fimsafrapay = []
 fimdepositos = []
+fimsantander = []
 
 colunadatas = []
 
@@ -137,6 +146,13 @@ def ler5():
     labelbt5 = Label(janela, text="{} CARREGADO".format(arquivodeposito), font="Arial 7")
     labelbt5.grid(column=0, row=10)
 
+#LENDO O SEXTO ARQUIVO
+def ler6():
+    global arquivosantander
+    arquivosantander = filedialog.askopenfilename()
+    labelbt6 = Label(janela, text="{} CARREGADO".format(arquivosantander), font="Arial 7")
+    labelbt6.grid(column=0, row=12)
+
 #THREADING
 def start():
     a = Th(1)
@@ -162,6 +178,7 @@ class Th(Thread):
         global count6
         global count7
         global count8
+        global count9
 
         #VARIÁVEIS DE ARMAZENAMENTO PARA ARQUIVOS INSERIDOS E IDENTIFICAÇÃO DE PLANILHAS
         pastadetrabalhogetnet = xlwings.Book(arquivogetnet)
@@ -179,6 +196,9 @@ class Th(Thread):
         pastadetrabalhodeposito = xlwings.Book(arquivodeposito)
         planilhadeposito = pastadetrabalhodeposito.sheets[0]
 
+        pastadetrabalhosantander = Book(arquivosantander)
+        planilhasantander = pastadetrabalhosantander.sheets[0]
+
         #REFERÊNCIA DE LOOP PARA A LEITURA DOS DADOS
         getnetlr = planilha.range('D4').end('down').row
 
@@ -189,6 +209,22 @@ class Th(Thread):
         safralr = planilhasafra.range('F1').end('down').row
 
         depositolr = planilhadeposito.range('H1').end('down').row
+
+        #LENDO DADOS EM SANTANDER
+        soma = 0
+        planilhasantander['1:6'].delete()
+        santanderlr = planilhasantander.range('A2').end('down').row
+        for i in range(2, santanderlr + 1):
+            data = planilhasantander.range(f'D{i}').value
+            data1 = planilhasantander.range(f'D{i + 1}').value
+            valor = planilhasantander.range(f'C{i}').value
+            convertido = valor.replace('.', '')
+            convertido2 = convertido.replace(',', '.')
+            soma += float(convertido2)
+            if data != data1 or data1 == None:
+                datasantander.append(data)
+                valorsantander.append(soma)
+                soma = 0
 
         #LENDO DADOS EM GETNET
         for i in range(5, getnetlr):
@@ -240,6 +276,10 @@ class Th(Thread):
             date = datetime.strptime(datagetnet[i], '%d/%m/%Y').date()
             datastr.append(date)
 
+        for i in range(0, len(datasantander)):
+            date = datetime.strptime(datasantander[i], '%d/%m/%Y').date()
+            datasantanderstr.append(date)
+
         for i in range(0, len(datasafra)):
             temp = datasafra[i].replace('.', '/')
             date = datetime.strptime(temp, '%d/%m/%Y').date()
@@ -277,6 +317,10 @@ class Th(Thread):
             inserir = "INSERT INTO depositos (data, valor) VALUES ('{}', '{}')".format(datadeposito[i], valordeposito[i])
             execute_query(connection, inserir)
 
+        for i in range(0, len(datasantander)):
+            inserir = "INSERT INTO santander (data, valor) VALUES ('{}', '{}')".format(datasantanderstr[i], valorsantander[i])
+            execute_query(connection, inserir)
+
         #DATA ATUAL
         x = datetime.now()
 
@@ -288,8 +332,9 @@ class Th(Thread):
         sheet.range('B1').value = "CREDITOS BB"
         sheet.range('C1').value = "CREDITOS GETNET"
         sheet.range('D1').value = "CREDITOS SAFRAPAY"
-        sheet.range('E1').value = "DEPOSITOS"
-        sheet.range('F1').value = "DEBITOS"
+        sheet.range('E1').value = "COBRANÇA SANTANDER"
+        sheet.range('F1').value = "DEPOSITOS"
+        sheet.range('G1').value = "DEBITOS"
 
 
         sheet.range('A2').value = x.strftime("%x")
@@ -329,6 +374,10 @@ class Th(Thread):
         cursor9 = conn.cursor()
         cursor9.execute("SELECT * FROM depositos ORDER BY data")
         fimdepositos = cursor.fetchall()
+
+        cursor10 = conn.cursor()
+        cursor10.execute("SELECT * FROM santander ORDER BY data")
+        fimsantander = cursor.fetchall()
 
         #IDENTIFICANDO A ULTIMA LINHA COM DADOS NA COLUNA DE DATAS
         last_rowdatas = sheet.range('A2').end('down').row
@@ -388,7 +437,7 @@ class Th(Thread):
             valor = datadata[i]
             if valor in local3:
                 indice = local3.index(valor)
-                sheet.range('F{}'.format(count6)).value = fimdespesas[indice][2]
+                sheet.range('G{}'.format(count6)).value = fimdespesas[indice][2]
                 count6 += 1
             else:
                 print('{} Not in list'.format(valor))
@@ -420,11 +469,27 @@ class Th(Thread):
             valor = datadata[i]
             if valor in local5:
                 indice = local5.index(valor)
-                sheet.range('E{}'.format(count8)).value = fimsafrapay[indice][2]
+                sheet.range('F{}'.format(count8)).value = fimsafrapay[indice][2]
                 count8 += 1
             else:
                 print('{} Not in list'.format(valor))
                 count8 += 1
+
+        # SANTANDER
+        local6 = []
+        for i in range(0, len(fimsantander)):
+            temp = fimsantander[i][1]
+            local6.append(temp)
+
+        for i in range(0, len(datadata)):
+            valor = datadata[i]
+            if valor in local6:
+                indice = local6.index(valor)
+                sheet.range('E{}'.format(count9)).value = fimsantander[indice][2]
+                count9 += 1
+            else:
+                print('{} Not in list'.format(valor))
+                count9 += 1
 
         cursor4 = conn.cursor()
         cursor4.execute("TRUNCATE getnet;")
@@ -434,14 +499,17 @@ class Th(Thread):
         cursor6.execute("TRUNCATE despesas;")
         cursor7 = conn.cursor()
         cursor7.execute("TRUNCATE safra;")
-        cursor10 = conn.cursor()
-        cursor10.execute("TRUNCATE depositos;")
+        cursor11 = conn.cursor()
+        cursor11.execute("TRUNCATE depositos;")
+        cursor12 = conn.cursor()
+        cursor12.execute("TRUNCATE santander;")
 
         pastadetrabalhogetnet.close()
         pastadetrabalhocbb.close()
         pastadetrabalhocontas.close()
         pastadetrabalhosafra.close()
         pastadetrabalhodeposito.close()
+        pastadetrabalhosantander.close()
 
 
 #INTERFACE
@@ -465,7 +533,7 @@ botao4.grid(column=0, row=5, padx=10, pady=10)
 botao4.bind("<Button>", lambda e: ler3())
 
 botao3 = Button(janela, text="GERAR CONTROLE", font="Arial 10")
-botao3.grid(column=0, row=11, padx=10, pady=10)
+botao3.grid(column=0, row=13, padx=10, pady=10)
 botao3.bind("<Button>", lambda e: start())
 
 botao5 = Button(janela, text="SAFRAPAY", font="Arial 10")
@@ -475,6 +543,10 @@ botao5.bind("<Button>", lambda e: ler4())
 botao6 = Button(janela, text="DEPOSITOS", font="Arial 10")
 botao6.grid(column=0, row=9, padx=10, pady=10)
 botao6.bind("<Button>", lambda e: ler5())
+
+botao7 = Button(janela, text="SANTANDER", font="Arial 10")
+botao7.grid(column=0, row=11, padx=10, pady=10)
+botao7.bind("<Button>", lambda e: ler6())
 
 janela.mainloop()
 
